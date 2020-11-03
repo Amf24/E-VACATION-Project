@@ -36,8 +36,8 @@ class _LoginState extends State<Login> {
 
   validlogin() {
     var formdata = formstateslogin.currentState;
-    if (formdata.validate()) {
-    } else {}
+    // if (formdata.validate()) {
+    // } else {}
   }
 
   @override
@@ -281,7 +281,7 @@ class _LoginState extends State<Login> {
   ErrorMessage() {
     final snackBar = SnackBar(
       content: Text("Your ID or Password is Wrong"),
-      duration: Duration(seconds: 3),
+      duration: Duration(seconds: 1),
       backgroundColor: Colors.red,
     );
 

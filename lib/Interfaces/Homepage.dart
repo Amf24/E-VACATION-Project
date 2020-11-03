@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trainingproject/Gstate.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Employee.dart';
 import 'BiddingStatusCard.dart';
+
 
 class Homepage extends StatefulWidget {
   @override
@@ -153,8 +154,9 @@ class _HomepageState extends State<Homepage> {
                                       ),
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          'Hiring Date :${_get.get("EMPHiringDate")}')),
+                                          'Hiring  Date :${_get.get("EMPHiringDate")}')),
                                   Container(
+                                    
                                       padding: EdgeInsets.only(
                                         left: 30,
                                       ),
@@ -169,6 +171,7 @@ class _HomepageState extends State<Homepage> {
                               children: [
                                 TableRow(children: [
                                   Container(
+                                    
                                       padding: EdgeInsets.only(
                                         left: 30,
                                       ),
@@ -188,8 +191,13 @@ class _HomepageState extends State<Homepage> {
                       // IsEmptyor(getList()),
                       IconButton(
                           icon: Icon(Icons.list),
-                          onPressed: () {
+                          onPressed: ()async  {
+                            Firestore.instance.document("test/test").get().then((docSnap){
+                              print(docSnap.data);
+
+                            });
                             for (int i = 0; i < getList().length; i++) {
+                              
                               print(getList()[i]);
                             }
                           })

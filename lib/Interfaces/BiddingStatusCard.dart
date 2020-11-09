@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:trainingproject/Employee.dart';
+import 'package:trainingproject/MonthsOrder.dart';
 
 class BiddingStatus extends StatelessWidget {
-  BiddingStatus(this.biddingIsAvailable);
+  Employee newEMP;
+  BiddingStatus(this.biddingIsAvailable, {this.newEMP});
 
   final bool biddingIsAvailable;
 
@@ -31,7 +34,8 @@ class BiddingStatus extends StatelessWidget {
                 ? 'view / edit'
                 : 'Start Bidding For The Next Year Vacation'),
             onPressed: () {
-              Navigator.of(context).pushNamed('MonthsOrder');
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => MonthsOrder(newEMP: newEMP)));
             },
           ),
         ],

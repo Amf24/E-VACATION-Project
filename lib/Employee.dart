@@ -9,22 +9,24 @@ class Employee {
   String Equibment;
   String Group;
   String Status;
-  List<String> Vacation;
+  String Result;
+  List Vacation = List();
 
   Employee(
-    String id,
-    String name,
-    String Email,
-    String password,
-    String periodWork,
-    String Equibment,
-    String Group,
-    String Status,
-  ) {
+      String id,
+      String name,
+      String Email,
+      // String password,
+      String periodWork,
+      String Equibment,
+      String Group,
+      String Status,
+      String Result,
+      List Vacation) {
     this.ID = id;
     this.name = name;
     this.Email = Email;
-    this.password = password;
+    // this.password = password;
     // this._periodWork = new DateTime.now().year - periodWork;
     this.periodWork =
         (new DateTime.now().difference(DateTime.parse(periodWork)).inDays /
@@ -32,20 +34,23 @@ class Employee {
     this.Equibment = Equibment;
     this.Group = Group;
     this.Status = Status;
-    this.Vacation = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
+    this.Result = Result;
+    this.Vacation.addAll(Vacation);
+
+    // this.Vacation = [
+    //   "January",
+    //   "February",
+    //   "March",
+    //   "April",
+    //   "May",
+    //   "June",
+    //   "July",
+    //   "August",
+    //   "September",
+    //   "October",
+    //   "November",
+    //   "December",
+    // ];
   }
   // String ID;
   // String name;

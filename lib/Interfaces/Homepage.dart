@@ -6,57 +6,67 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trainingproject/Gstate.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:trainingproject/Store.dart';
 import '../Employee.dart';
 import 'BiddingStatusCard.dart';
 
-
 class Homepage extends StatefulWidget {
+  Employee newEMP;
+  Homepage({this.newEMP});
   @override
-  _HomepageState createState() => _HomepageState();
+  _HomepageState createState() => _HomepageState(newEMP: newEMP);
 }
 
 class _HomepageState extends State<Homepage> {
+  Employee newEMP;
+  _HomepageState({this.newEMP});
+  final _store = Store();
   Gstate _get = Gstate.instance;
   List<String> Listo;
-  String output = '';
 
-  bool IsEmptyor(List m) {
-    if (m.isEmpty) {
+  bool IsEmptyor(List empList) {
+    if (empList.isEmpty) {
       return false;
     } else
       return true;
   }
 
   List getList() {
-    Employee x = _get.get("newEMP");
-    return x.Vacation;
+    // Employee x = _get.get("newEMP");
+    // return x.Vacation;
+    return newEMP.Vacation;
   }
 
   String getname() {
-    Employee x = _get.get("newEMP");
-    return x.name;
+    // Employee x = _get.get("nEewMP");
+    // return x.name;
+    return newEMP.name;
   }
 
   String getState() {
-    Employee x = _get.get("newEMP");
-    return x.Status;
+    // Employee x = _get.get("newEMP");
+    // return _get.get("EMPStatus");
+    return newEMP.Status;
   }
 
   String Welcome() {
     var timeNow = DateTime.now().hour;
 
     if (timeNow <= 12) {
-      return 'Good Morning ${_get.get("EMPname")}';
+      return 'Good Morning ${newEMP.name}';
     } else if ((timeNow > 12) && (timeNow <= 16)) {
-      return 'Good Afternoon ${_get.get("EMPname")}';
+      return 'Good Afternoon ${newEMP.name}';
     } else if ((timeNow > 16) && (timeNow < 20)) {
-      return 'Good Evening ${_get.get("EMPname")}';
+      return 'Good Evening ${newEMP.name}';
     } else {
-      return 'Good Night ${_get.get("EMPname")}';
+      return 'Good Night ${newEMP.name}';
     }
   }
 
   void putmonth() {}
+
+  List empList = [];
+  var output;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +84,7 @@ class _HomepageState extends State<Homepage> {
                         width: double.infinity,
                         padding: EdgeInsets.only(top: 20, bottom: 20),
                         margin: EdgeInsets.only(
-                            top: 20, bottom: 20, left: 20, right: 20),
+                            top: 40, bottom: 20, left: 20, right: 20),
                         decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
@@ -91,6 +101,7 @@ class _HomepageState extends State<Homepage> {
                               children: [
                                 Expanded(
                                   child: IconButton(
+                                      alignment: Alignment.centerLeft,
                                       icon: Icon(Icons.exit_to_app),
                                       onPressed: () {
                                         Navigator.of(context)
@@ -101,13 +112,12 @@ class _HomepageState extends State<Homepage> {
                                   width: 50,
                                 ),
                                 Expanded(
-                                  flex: 2,
-                                  // child: Text(
-                                  //   "Welcome ${_get.get("EMPname")}",
-                                  //   style:
-                                  //       TextStyle(color: Colors.blue.shade900),
-                                  // ),
-                                  child: Text(Welcome()),
+                                  child: Container(
+                                    child: Text(
+                                      Welcome(),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -133,14 +143,13 @@ class _HomepageState extends State<Homepage> {
                                         left: 30,
                                       ),
                                       alignment: Alignment.centerLeft,
-                                      child: Text('ID :${_get.get("EMID")}')),
+                                      child: Text('ID :${newEMP.ID}')),
                                   Container(
                                       padding: EdgeInsets.only(
                                         left: 30,
                                       ),
                                       alignment: Alignment.centerLeft,
-                                      child: Text(
-                                          'Email :${_get.get("EMPemail")}')),
+                                      child: Text('Email :${newEMP.Email}')),
                                 ]),
                               ],
                             ),
@@ -154,15 +163,14 @@ class _HomepageState extends State<Homepage> {
                                       ),
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          'Hiring  Date :${_get.get("EMPHiringDate")}')),
+                                          'Hiring  Date :${newEMP.periodWork}')),
                                   Container(
-                                    
                                       padding: EdgeInsets.only(
                                         left: 30,
                                       ),
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          'Equibment :${_get.get("EMPEquibment")}')),
+                                          'Equibment :${newEMP.Equibment}')),
                                 ]),
                               ],
                             ),
@@ -171,121 +179,32 @@ class _HomepageState extends State<Homepage> {
                               children: [
                                 TableRow(children: [
                                   Container(
-                                    
                                       padding: EdgeInsets.only(
                                         left: 30,
                                       ),
                                       alignment: Alignment.centerLeft,
-                                      child: Text(
-                                          'Group :${_get.get("EMPGroup")}')),
-                                  // Text(getname())
+                                      child: Text('Group :${newEMP.Group}')),
                                 ]),
                               ],
                             ),
                           ],
                         ),
                       ),
-                      //Visibility(visible: hasBidding, child: Witing()),
-                      //hasBidding ? haveBidding() : noBidding()
-                      BiddingStatus(getState() == 'Waiting'),
-                      // IsEmptyor(getList()),
+                      BiddingStatus((getState() == 'Waiting'), newEMP: newEMP),
                       IconButton(
                           icon: Icon(Icons.list),
-                          onPressed: ()async  {
-                            Firestore.instance.document("test/test").get().then((docSnap){
-                              print(docSnap.data);
+                          onPressed: () async {
+                            print(output);
+                            for (int i = 0; i < empList.length; i++) {
+                              print(empList[i]["Name"]);
+                            }
 
-                            });
                             for (int i = 0; i < getList().length; i++) {
-                              
                               print(getList()[i]);
                             }
                           })
                     ],
                   ),
                 ))));
-  }
-
-  Container haveBidding() {
-    return Container(
-      child: Center(
-        child: Text("view bidding"),
-      ),
-    );
-  }
-
-  Container noBidding() {
-    //bool biddingIsAvailable;
-    return Container(
-      //height: 270,
-      width: double.infinity,
-      //padding: EdgeInsets.only(top: 200, bottom: 200),
-      margin: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black,
-                spreadRadius: .4,
-                blurRadius: 20,
-                offset: Offset(0, 10))
-          ]),
-
-      child: Column(
-        children: [
-          Text('No Bidding'),
-          RaisedButton(
-            child: Text('Start Bidding For The Next Year Vacation'),
-            onPressed: () {
-              Navigator.of(context).pushNamed('MonthsOrder');
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Container Witing() {
-    return Container(
-      //height: 270,
-      // padding: EdgeInsets.only(top: 20, bottom: 20),
-      margin: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black,
-                spreadRadius: .4,
-                blurRadius: 20,
-                offset: Offset(0, 10))
-          ]),
-
-      child: Column(
-        children: [
-          Text('Your Months List'),
-          Divider(
-            thickness: 3,
-          ),
-          SizedBox(
-            height: 100,
-            //       child: ListView.builder(itemBuilder: ,itemCount:
-            // ,
-            //       ),
-          ),
-          Divider(
-            thickness: 3,
-          ),
-          RaisedButton(
-            child: Text('Edit'),
-            onPressed: () {
-              Navigator.of(context).pushNamed('MonthsOrder');
-            },
-          ),
-        ],
-      ),
-    );
   }
 }

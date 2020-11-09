@@ -1,12 +1,17 @@
 // ignore: avoid_web_libraries_in_flutter
 //import 'dart:html';
+import 'dart:ffi';
 import 'dart:ui';
 import 'dart:convert';
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trainingproject/Employee.dart';
+import 'package:trainingproject/Interfaces/Homepage.dart';
+import 'package:trainingproject/Store.dart';
+import 'package:trainingproject/test.dart';
 
 import '../Gstate.dart';
 
@@ -21,6 +26,7 @@ class _LoginState extends State<Login> {
   String output = '';
   int index;
   bool hidepass = true;
+  Gstate _get = Gstate.instance;
 
   final idController = new TextEditingController();
   final passController = new TextEditingController();
@@ -36,8 +42,8 @@ class _LoginState extends State<Login> {
 
   validlogin() {
     var formdata = formstateslogin.currentState;
-    // if (formdata.validate()) {
-    // } else {}
+    if (formdata.validate()) {
+    } else {}
   }
 
   @override
@@ -173,65 +179,198 @@ class _LoginState extends State<Login> {
                                     shape: StadiumBorder(),
                                     onPressed: () async {
                                       validlogin();
-                                      List datax = await (getData());
-                                      for (int i = 0; i < datax.length; i++) {
-                                        if ((datax[i]["ID"].toString() ==
-                                                idController.text.toString()) &&
-                                            (datax[i]["Password"].toString() ==
-                                                passController.text
-                                                    .toString())) {
-                                          index = i;
-                                          _save.set('EMID', datax[i]["ID"]);
+                                      var newEMP;
 
-                                          _save.set(
-                                              'EMPemail', datax[i]["E-mail"]);
+                                      final empemail = await Store()
+                                          .GetEmpEmail(idController.text);
 
-                                          _save.set(
-                                              'EMPname', datax[i]["name"]);
+                                      final result = await Store().loginemp(
+                                          empemail, passController.text);
 
-                                          _save.set('EMPHiringDate',
-                                              datax[i]["Hiring date"]);
+                                      if (result.user != null) {
+                                        final empID = await Store()
+                                            .GetEmpID(idController.text);
 
-                                          _save.set('EMPEquibment',
-                                              datax[i]["Equibment"]);
+                                        final empname = await Store()
+                                            .GetEmpName(idController.text);
 
-                                          _save.set(
-                                              "EMPStatus", datax[i]["Status"]);
+                                        final emphiringdate = await Store()
+                                            .GetEmpHiringDate(
+                                                idController.text);
 
-                                          _save.set(
-                                              'EMPGroup', datax[i]["Group"]);
+                                        final empequibment = await Store()
+                                            .GetEmpEquibment(idController.text);
 
-                                          _save.set("index", index);
+                                        final empGroup = await Store()
+                                            .GetEmpGroup(idController.text);
 
-                                          var newEMP = new Employee(
-                                            datax[i]["ID"].toString(),
-                                            datax[i]["name"],
-                                            datax[i]["Email"],
-                                            datax[i]["Password"].toString(),
-                                            datax[i]["Hiring date"],
-                                            datax[i]["Equibment"],
-                                            datax[i]["Group"],
-                                            datax[i]["Status"],
-                                          );
+                                        final empStatus = await Store()
+                                            .GetEmpStatus(idController.text);
+
+                                        final empresult = await Store()
+                                            .GetEmpResult(idController.text);
+
+                                        var empList = await Store()
+                                            .GetEmpListMonths(
+                                                idController.text);
+
+                                        Store().saveInfo(
+                                            empID,
+                                            empname,
+                                            empemail,
+                                            emphiringdate,
+                                            empequibment,
+                                            empGroup,
+                                            empStatus,
+                                            empresult,
+                                            empList);
+
+                                        print(_get.get("EMPHiringDate"));
+
+                                        print(_get.get("EMPname"));
+
+                                        print(_get.get("EMPStatus"));
+
+                                        List p = Store().ConvertList(
+                                            _get.get("EMPListMonths"));
+                                        _save.set("EMPListMonthsaftr", p);
+
+                                        if (empStatus != 'No Bidding') {
+                                          newEMP = new Employee(
+                                              empID,
+                                              empname,
+                                              empemail,
+                                              emphiringdate,
+                                              empequibment,
+                                              empGroup,
+                                              empStatus,
+                                              empresult,
+                                              empList
+                                              // _get.get("EMPListMonths")
+                                              );
 
                                           _save.set("newEMP", newEMP);
+                                          _save.set(
+                                              "IDforEmail", idController.text);
 
                                           print(newEMP.name);
                                           print(newEMP.periodWork);
+                                          print("&&&&&&&&&&&&&&&");
+                                          print(newEMP.Status);
 
-                                          Navigator.of(context)
-                                              .pushNamed('homepage');
-
-                                          break;
+                                          for (var i = 0;
+                                              i < empList.length;
+                                              i++) {
+                                            print(empList[i]);
+                                          }
                                         } else {
-                                          ErrorMessage();
-                                          //   setState(() {
-                                          //   output =
-                                          //   ('Your ID or Password is Wrong');
-                                          // });
+                                          newEMP = new Employee(
+                                              _get.get("EMID"),
+                                              _get.get("EMPname"),
+                                              _get.get("EMPemail"),
+                                              _get.get("EMPHiringDate"),
+                                              _get.get("EMPEquibment"),
+                                              _get.get("EMPGroup"),
+                                              _get.get("EMPStatus"),
+                                              _get.get("EMPResult"), [
+                                            "January",
+                                            "February",
+                                            "March",
+                                            "April",
+                                            "May",
+                                            "June",
+                                            "July",
+                                            "August",
+                                            "September",
+                                            "October",
+                                            "November",
+                                            "December",
+                                          ]);
 
+                                          _save.set("newEMP", newEMP);
+                                          _save.set(
+                                              "IDforEmail", idController.text);
+
+                                          print(newEMP.name);
+                                          print(newEMP.periodWork);
+                                          print("&&&&&&&&&&&&&&&");
+                                          print(newEMP.Status);
                                         }
+
+                                        // Navigator.of(context)
+                                        //     .pushNamed('homepage');
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    Homepage(newEMP: newEMP)));
+                                      } else {
+                                        ErrorMessage();
                                       }
+
+                                      // print(empemail);
+
+                                      // List datax = await (getData());
+                                      // for (int i = 0; i < datax.length; i++) {
+                                      //   if ((datax[i]["ID"].toString() ==
+                                      //           idController.text.toString()) &&
+                                      //       (datax[i]["Password"].toString() ==
+                                      //           passController.text
+                                      //               .toString())) {
+                                      //     index = i;
+                                      //     _save.set('EMID', datax[i]["ID"]);
+
+                                      //     _save.set(
+                                      //         'EMPemail', datax[i]["E-mail"]);
+
+                                      //     _save.set(
+                                      //         'EMPname', datax[i]["name"]);
+
+                                      //     _save.set('EMPHiringDate',
+                                      //         datax[i]["Hiring date"]);
+
+                                      //     _save.set('EMPEquibment',
+                                      //         datax[i]["Equibment"]);
+
+                                      //     _save.set(
+                                      //         "EMPStatus", datax[i]["Status"]);
+
+                                      //     _save.set(
+                                      //         'EMPGroup', datax[i]["Group"]);
+
+                                      //     _save.set("index", index);
+
+                                      //     var newEMP = new Employee(
+                                      //       datax[i]["ID"].toString(),
+                                      //       datax[i]["name"],
+                                      //       datax[i]["Email"],
+                                      //       datax[i]["Password"].toString(),
+                                      //       datax[i]["Hiring date"],
+                                      //       datax[i]["Equibment"],
+                                      //       datax[i]["Group"],
+                                      //       datax[i]["Status"],
+                                      //     );
+
+                                      //     _save.set("newEMP", newEMP);
+
+                                      //     _save.set(
+                                      //         "IDforEmail", idController.text);
+
+                                      //     print(newEMP.name);
+                                      //     print(newEMP.periodWork);
+
+                                      // Navigator.of(context)
+                                      //     .pushNamed('homepage');
+
+                                      //     break;
+                                      //   } else {
+                                      //     ErrorMessage();
+                                      //     //   setState(() {
+                                      //     //   output =
+                                      //     //   ('Your ID or Password is Wrong');
+                                      //     // });
+
+                                      //   }
+                                      // }
                                     },
                                     child: Row(
                                       mainAxisAlignment:
@@ -290,7 +429,8 @@ class _LoginState extends State<Login> {
 
   Future<List> getData() async {
     String url =
-        "http://www.json-generator.com/api/json/get/cfEbYFkELC?indent=2";
+        "http://www.json-generator.com/api/json/get/cgwStpuQbS?indent=2";
+    // http://www.json-generator.com/api/json/get/cgwStpuQbS?indent=2
     http.Response response = await http.get(url);
     return jsonDecode(response.body);
   }

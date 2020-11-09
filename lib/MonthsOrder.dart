@@ -1,23 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:trainingproject/Employee.dart';
+import 'package:trainingproject/Interfaces/Homepage.dart';
+import 'package:trainingproject/Store.dart';
 
 import 'Gstate.dart';
 
 class MonthsOrder extends StatefulWidget {
+  Employee newEMP;
+  MonthsOrder({this.newEMP});
   @override
-  _MonthsOrderState createState() => _MonthsOrderState();
+  _MonthsOrderState createState() => _MonthsOrderState(newEMP: newEMP);
 }
 
 class _MonthsOrderState extends State<MonthsOrder> {
+  Employee newEMP;
+  _MonthsOrderState({this.newEMP});
   Employee m;
   Employee getNewEmp() {
     m = _get.get("newEMP");
     return m;
   }
 
-  List<String> getList() {
+  List t = [];
+  List getList() {
     Employee i = _get.get("newEMP");
-    return i.Vacation;
+    print(newEMP.name);
+    print("getList");
+    print(i.Vacation.length);
+    print("------");
+    // return Store().ConvertList(i.Vacation);
+
+    return newEMP.Vacation;
+    // List p = _get.get("EMPListMonthsaftr");
   }
 
   // List NewORNot() {
@@ -52,6 +66,8 @@ class _MonthsOrderState extends State<MonthsOrder> {
   }
 
   setListm(List m) {
+    print("objesetListmct");
+    print(m);
     Months = m;
   }
 
@@ -60,7 +76,7 @@ class _MonthsOrderState extends State<MonthsOrder> {
     y.Status = p;
   }
 
-  List<String> Months;
+  List Months = [];
   PrintMonths() {
     for (int i = 0; i < Months.length; i++) {
       print(Months[i]);
@@ -72,7 +88,9 @@ class _MonthsOrderState extends State<MonthsOrder> {
       if (newindex > oldindex) {
         newindex -= 1;
       }
+      ///////////////////////////////////
       var x = Months.removeAt(oldindex);
+      ///////////////////////////////////
       Months.insert(newindex, x);
     });
   }
@@ -131,7 +149,10 @@ class _MonthsOrderState extends State<MonthsOrder> {
                               child: IconButton(
                                   icon: Icon(Icons.arrow_back),
                                   onPressed: () {
-                                    Navigator.of(context).pushNamed('homepage');
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                Homepage(newEMP: newEMP)));
                                   }),
                             ),
                             SizedBox(
@@ -140,11 +161,11 @@ class _MonthsOrderState extends State<MonthsOrder> {
                             Expanded(
                                 flex: 2,
                                 child: Text(
-                                    "Your Equbiment: ${_get.get("EMPEquibment")}")),
+                                    "Your Equbiment: ${newEMP.Equibment}")),
                           ],
                         ),
                         Divider(),
-                        Text("Group: ${_get.get("EMPGroup")}"),
+                        Text("Group: ${newEMP.Group}"),
                         Container(
                           //height: 270,
                           width: double.infinity,
@@ -195,7 +216,9 @@ class _MonthsOrderState extends State<MonthsOrder> {
                             if (getStatus() == "No Bidding") {
                               SetStatus("Waiting");
                             }
-                            Navigator.of(context).pushNamed('homepage');
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    Homepage(newEMP: newEMP)));
                           },
                           child: Text("Submit"),
                         )

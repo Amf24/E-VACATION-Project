@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:trainingproject/Gstate.dart';
 
 import 'Employee.dart';
@@ -7,15 +8,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 class Store {
   Gstate _save = Gstate.instance;
 
-  final Firestore _firestore = Firestore.instance;
-  final CollectionReference empList = Firestore.instance.collection("Employee");
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CollectionReference EMP =
+      FirebaseFirestore.instance.collection("Employee");
   final _auth = FirebaseAuth.instance;
 
   Future getEmpList() async {
     List list = [];
     try {
-      await empList.getDocuments().then((QuerySnapshot) {
-        QuerySnapshot.documents.forEach((element) {
+      await EMP.getDocuments().then((QuerySnapshot) {
+        QuerySnapshot.docs.forEach((element) {
           list.add(element.data);
         });
       });
@@ -27,75 +29,89 @@ class Store {
   }
 
   Future<String> GetEmpEmail(String ID) async {
-    String k = "";
-    await _firestore.document("Employee/$ID").get().then((docSnap) {
-      k = docSnap.data["Email"].toString();
-    });
-    return k;
+    try {
+      String Email = "";
+      var result = await ExistsOrNot(ID);
+      if (result) {
+        await _firestore.doc("Employee/$ID").get().then((docSnap) {
+          Email = docSnap.data()["Email"].toString();
+          print(Email);
+          print("$result GetEmpEmail");
+        });
+      } else {
+        print("$result GetEmpEmail");
+        Email = "Email not found";
+        print(Email);
+      }
+
+      return Email;
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   Future<String> GetEmpID(String ID) async {
-    String k = "";
-    await _firestore.document("Employee/$ID").get().then((docSnap) {
-      k = docSnap.data["ID"].toString();
+    String EmpID = "";
+    await _firestore.doc("Employee/$ID").get().then((docSnap) {
+      EmpID = docSnap.data()["ID"].toString();
     });
-    return k;
+    return EmpID;
   }
 
   Future<String> GetEmpName(String ID) async {
-    String k = "";
-    await _firestore.document("Employee/$ID").get().then((docSnap) {
-      k = docSnap.data["Name"].toString();
+    String EmpName = "";
+    await _firestore.doc("Employee/$ID").get().then((docSnap) {
+      EmpName = docSnap.data()["Name"].toString();
     });
-    return k;
+    return EmpName;
   }
 
   Future<String> GetEmpEquibment(String ID) async {
-    String k = "";
-    await _firestore.document("Employee/$ID").get().then((docSnap) {
-      k = docSnap.data["Equibment"].toString();
+    String EmpEquibment = "";
+    await _firestore.doc("Employee/$ID").get().then((docSnap) {
+      EmpEquibment = docSnap.data()["Equibment"].toString();
     });
-    return k;
+    return EmpEquibment;
   }
 
   Future<String> GetEmpGroup(String ID) async {
-    String k = "";
-    await _firestore.document("Employee/$ID").get().then((docSnap) {
-      k = docSnap.data["Group"].toString();
+    String EmpGroup = "";
+    await _firestore.doc("Employee/$ID").get().then((docSnap) {
+      EmpGroup = docSnap.data()["Group"].toString();
     });
-    return k;
+    return EmpGroup;
   }
 
   Future<String> GetEmpHiringDate(String ID) async {
-    String k = "";
-    await _firestore.document("Employee/$ID").get().then((docSnap) {
-      k = docSnap.data["Hiring date"].toString();
+    String EmpHiringDate = "";
+    await _firestore.doc("Employee/$ID").get().then((docSnap) {
+      EmpHiringDate = docSnap.data()["Hiring date"].toString();
     });
-    return k;
+    return EmpHiringDate;
   }
 
   Future<String> GetEmpStatus(String ID) async {
-    String k = "";
-    await _firestore.document("Employee/$ID").get().then((docSnap) {
-      k = docSnap.data["Status"].toString();
+    String EmpStatus = "";
+    await _firestore.doc("Employee/$ID").get().then((docSnap) {
+      EmpStatus = docSnap.data()["Status"].toString();
     });
-    return k;
+    return EmpStatus;
   }
 
   Future<String> GetEmpResult(String ID) async {
-    String k = "";
-    await _firestore.document("Employee/$ID").get().then((docSnap) {
-      k = docSnap.data["Result"].toString();
+    String EmpResult = "";
+    await _firestore.doc("Employee/$ID").get().then((docSnap) {
+      EmpResult = docSnap.data()["Result"].toString();
     });
-    return k;
+    return EmpResult;
   }
 
   Future<List> GetEmpListMonths(String ID) async {
-    List k = [];
-    await _firestore.document("Employee/$ID").get().then((docSnap) {
-      k = docSnap.data["Months"];
+    List EmpListMonths = [];
+    await _firestore.doc("Employee/$ID").get().then((docSnap) {
+      EmpListMonths = docSnap.data()["Months"];
     });
-    return k;
+    return EmpListMonths;
   }
 
   List ConvertList(List a) {
@@ -130,11 +146,35 @@ class Store {
     ];
   }
 
-  Future<AuthResult> loginemp(String ID, String pass) async {
-    final result =
-        await _auth.signInWithEmailAndPassword(email: ID, password: pass);
+  loginemp(String ID, String pass) async {
+    final email = await GetEmpEmail(ID);
+    if (email != "Email not found") {
+      try {
+        final result = await _auth.signInWithEmailAndPassword(
+            email: email, password: pass);
 
-    return result;
+        final User user = result.user;
+
+        return user;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          print('No user found for that email.');
+        } else if (e.code == 'wrong-password') {
+          print('Wrong password provided for that user.');
+        }
+        // }
+        // on PlatformException catch (e) {
+        //   if (e.code == 'user-not-found') {
+        //     print('PlatformException No user found for that email.');
+        //   } else if (e.code == 'wrong-password') {
+        //     print('PlatformException Wrong password provided for that user.');
+        //   }
+      } catch (e) {
+        print("other types of Exceptions");
+      }
+    } else {
+      print("loginemp Email not found");
+    }
   }
 
   saveInfo(
@@ -166,17 +206,38 @@ class Store {
     _save.set('EMPListMonths', monthes);
   }
 
-  bool ExistsOrNot(String ID) {
-    Firestore.instance
-        .collection('Employee')
-        .document(ID)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+  Future<bool> ExistsOrNot(String ID) async {
+    final result = FirebaseFirestore.instance.collection('Employee').doc(ID);
+    if ((await result.get()).exists) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  UpdatingStatus(String Status, String ID) {
+    EMP
+        .doc(ID)
+        .update({'Status': Status})
+        .then((value) => print("Status Updated"))
+        .catchError((error) => print("Failed to update Status: $error"));
+  }
+
+  UpdatingMonths(List Months, String ID) {
+    EMP
+        .doc(ID)
+        .update({'Months': Months})
+        .then((value) => print("Months Updated"))
+        .catchError((error) => print("Failed to update Months: $error"));
+  }
+
+  adminLogin(String id, String pass) async {
+    final result =
+        await _auth.signInWithEmailAndPassword(email: id, password: pass);
+    return result;
+  }
+
+  logout() {
+    return _auth.signOut();
   }
 }

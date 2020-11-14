@@ -213,7 +213,10 @@ class _MonthsOrderState extends State<MonthsOrder> {
                             PrintMonths();
                             _save.set("AfterEdit", Months);
                             setList(Months);
+                            Store().UpdatingMonths(Months, newEMP.ID);
                             if (getStatus() == "No Bidding") {
+                              Store().UpdatingStatus("Waiting", newEMP.ID);
+
                               SetStatus("Waiting");
                             }
                             Navigator.of(context).push(MaterialPageRoute(

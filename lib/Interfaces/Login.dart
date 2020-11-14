@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trainingproject/Admin.dart';
 import 'package:trainingproject/Employee.dart';
 import 'package:trainingproject/Interfaces/Homepage.dart';
 import 'package:trainingproject/Store.dart';
@@ -27,6 +28,8 @@ class _LoginState extends State<Login> {
   int index;
   bool hidepass = true;
   Gstate _get = Gstate.instance;
+  bool isAdmin = false;
+  final adminpassword = 'admin000';
 
   final idController = new TextEditingController();
   final passController = new TextEditingController();
@@ -171,223 +174,176 @@ class _LoginState extends State<Login> {
                                 ),
                                 Container(
                                   alignment: Alignment.center,
-                                  child: FlatButton(
-                                    color: Colors.blue.shade900,
-                                    //elevation: 20,
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 12, horizontal: 88),
-                                    shape: StadiumBorder(),
-                                    onPressed: () async {
-                                      validlogin();
-                                      var newEMP;
-
-                                      final empemail = await Store()
-                                          .GetEmpEmail(idController.text);
-
-                                      final result = await Store().loginemp(
-                                          empemail, passController.text);
-
-                                      if (result.user != null) {
-                                        final empID = await Store()
-                                            .GetEmpID(idController.text);
-
-                                        final empname = await Store()
-                                            .GetEmpName(idController.text);
-
-                                        final emphiringdate = await Store()
-                                            .GetEmpHiringDate(
-                                                idController.text);
-
-                                        final empequibment = await Store()
-                                            .GetEmpEquibment(idController.text);
-
-                                        final empGroup = await Store()
-                                            .GetEmpGroup(idController.text);
-
-                                        final empStatus = await Store()
-                                            .GetEmpStatus(idController.text);
-
-                                        final empresult = await Store()
-                                            .GetEmpResult(idController.text);
-
-                                        var empList = await Store()
-                                            .GetEmpListMonths(
-                                                idController.text);
-
-                                        Store().saveInfo(
-                                            empID,
-                                            empname,
-                                            empemail,
-                                            emphiringdate,
-                                            empequibment,
-                                            empGroup,
-                                            empStatus,
-                                            empresult,
-                                            empList);
-
-                                        print(_get.get("EMPHiringDate"));
-
-                                        print(_get.get("EMPname"));
-
-                                        print(_get.get("EMPStatus"));
-
-                                        List p = Store().ConvertList(
-                                            _get.get("EMPListMonths"));
-                                        _save.set("EMPListMonthsaftr", p);
-
-                                        if (empStatus != 'No Bidding') {
-                                          newEMP = new Employee(
-                                              empID,
-                                              empname,
-                                              empemail,
-                                              emphiringdate,
-                                              empequibment,
-                                              empGroup,
-                                              empStatus,
-                                              empresult,
-                                              empList
-                                              // _get.get("EMPListMonths")
-                                              );
-
-                                          _save.set("newEMP", newEMP);
-                                          _save.set(
-                                              "IDforEmail", idController.text);
-
-                                          print(newEMP.name);
-                                          print(newEMP.periodWork);
-                                          print("&&&&&&&&&&&&&&&");
-                                          print(newEMP.Status);
-
-                                          for (var i = 0;
-                                              i < empList.length;
-                                              i++) {
-                                            print(empList[i]);
+                                  child: Builder(
+                                    builder: (context) => FlatButton(
+                                      color: Colors.blue.shade900,
+                                      //elevation: 20,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 12, horizontal: 88),
+                                      shape: StadiumBorder(),
+                                      onPressed: () async {
+                                        if (isAdmin) {
+                                          if (passController.text ==
+                                              adminpassword) {
+                                            try {
+                                              Store().adminLogin(
+                                                  idController.text,
+                                                  passController.text);
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Admin()));
+                                            } catch (e) {}
+                                          } else {
+                                            ErrorMessage(
+                                                "Admin Password is weong");
                                           }
                                         } else {
-                                          newEMP = new Employee(
-                                              _get.get("EMID"),
-                                              _get.get("EMPname"),
-                                              _get.get("EMPemail"),
-                                              _get.get("EMPHiringDate"),
-                                              _get.get("EMPEquibment"),
-                                              _get.get("EMPGroup"),
-                                              _get.get("EMPStatus"),
-                                              _get.get("EMPResult"), [
-                                            "January",
-                                            "February",
-                                            "March",
-                                            "April",
-                                            "May",
-                                            "June",
-                                            "July",
-                                            "August",
-                                            "September",
-                                            "October",
-                                            "November",
-                                            "December",
-                                          ]);
+                                          validlogin();
+                                          var newEMP;
 
-                                          _save.set("newEMP", newEMP);
-                                          _save.set(
-                                              "IDforEmail", idController.text);
+                                          final empemail = await Store()
+                                              .GetEmpEmail(idController.text);
 
-                                          print(newEMP.name);
-                                          print(newEMP.periodWork);
-                                          print("&&&&&&&&&&&&&&&");
-                                          print(newEMP.Status);
+                                          // final result = await Store().loginemp(
+                                          //     empemail, passController.text);
+                                          final result = await Store().loginemp(
+                                              idController.text,
+                                              passController.text);
+
+                                          if (result != null) {
+                                            final empID = await Store()
+                                                .GetEmpID(idController.text);
+
+                                            final empname = await Store()
+                                                .GetEmpName(idController.text);
+
+                                            final emphiringdate = await Store()
+                                                .GetEmpHiringDate(
+                                                    idController.text);
+
+                                            final empequibment = await Store()
+                                                .GetEmpEquibment(
+                                                    idController.text);
+
+                                            final empGroup = await Store()
+                                                .GetEmpGroup(idController.text);
+
+                                            final empStatus = await Store()
+                                                .GetEmpStatus(
+                                                    idController.text);
+
+                                            final empresult = await Store()
+                                                .GetEmpResult(
+                                                    idController.text);
+
+                                            var empList = await Store()
+                                                .GetEmpListMonths(
+                                                    idController.text);
+
+                                            Store().saveInfo(
+                                                empID,
+                                                empname,
+                                                empemail,
+                                                emphiringdate,
+                                                empequibment,
+                                                empGroup,
+                                                empStatus,
+                                                empresult,
+                                                empList);
+
+                                            print(_get.get("EMPHiringDate"));
+
+                                            print(_get.get("EMPname"));
+
+                                            print(_get.get("EMPStatus"));
+
+                                            List p = Store().ConvertList(
+                                                _get.get("EMPListMonths"));
+
+                                            _save.set("EMPListMonthsaftr", p);
+
+                                            if (empStatus != 'No Bidding') {
+                                              newEMP = new Employee(
+                                                  empID,
+                                                  empname,
+                                                  empemail,
+                                                  emphiringdate,
+                                                  empequibment,
+                                                  empGroup,
+                                                  empStatus,
+                                                  empresult,
+                                                  empList
+                                                  // _get.get("EMPListMonths")
+                                                  );
+
+                                              _save.set("newEMP", newEMP);
+                                              _save.set("IDforEmail",
+                                                  idController.text);
+
+                                              print(newEMP.name);
+                                              print(emphiringdate);
+                                              print("&&&&&&&&&&&&&&&");
+                                              print(newEMP.Status);
+
+                                              for (var i = 0;
+                                                  i < empList.length;
+                                                  i++) {
+                                                print(empList[i]);
+                                              }
+                                            } else {
+                                              newEMP = new Employee(
+                                                  empID,
+                                                  empname,
+                                                  empemail,
+                                                  emphiringdate,
+                                                  empequibment,
+                                                  empGroup,
+                                                  empStatus,
+                                                  empresult,
+                                                  Store().defaultList());
+
+                                              _save.set("newEMP", newEMP);
+                                              _save.set("IDforEmail",
+                                                  idController.text);
+
+                                              print(newEMP.name);
+                                              print(newEMP.periodWork);
+                                              print("&&&&&&&&&&&&&&&");
+                                              print(newEMP.Status);
+                                            }
+
+                                            // Navigator.of(context)
+                                            //     .pushNamed('homepage');
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Homepage(
+                                                            newEMP: newEMP)));
+                                          } else {
+                                            print("Error login ");
+                                            ErrorMessage(
+                                                "Your ID or Password is Wrong");
+                                          }
                                         }
-
-                                        // Navigator.of(context)
-                                        //     .pushNamed('homepage');
-                                        Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    Homepage(newEMP: newEMP)));
-                                      } else {
-                                        ErrorMessage();
-                                      }
-
-                                      // print(empemail);
-
-                                      // List datax = await (getData());
-                                      // for (int i = 0; i < datax.length; i++) {
-                                      //   if ((datax[i]["ID"].toString() ==
-                                      //           idController.text.toString()) &&
-                                      //       (datax[i]["Password"].toString() ==
-                                      //           passController.text
-                                      //               .toString())) {
-                                      //     index = i;
-                                      //     _save.set('EMID', datax[i]["ID"]);
-
-                                      //     _save.set(
-                                      //         'EMPemail', datax[i]["E-mail"]);
-
-                                      //     _save.set(
-                                      //         'EMPname', datax[i]["name"]);
-
-                                      //     _save.set('EMPHiringDate',
-                                      //         datax[i]["Hiring date"]);
-
-                                      //     _save.set('EMPEquibment',
-                                      //         datax[i]["Equibment"]);
-
-                                      //     _save.set(
-                                      //         "EMPStatus", datax[i]["Status"]);
-
-                                      //     _save.set(
-                                      //         'EMPGroup', datax[i]["Group"]);
-
-                                      //     _save.set("index", index);
-
-                                      //     var newEMP = new Employee(
-                                      //       datax[i]["ID"].toString(),
-                                      //       datax[i]["name"],
-                                      //       datax[i]["Email"],
-                                      //       datax[i]["Password"].toString(),
-                                      //       datax[i]["Hiring date"],
-                                      //       datax[i]["Equibment"],
-                                      //       datax[i]["Group"],
-                                      //       datax[i]["Status"],
-                                      //     );
-
-                                      //     _save.set("newEMP", newEMP);
-
-                                      //     _save.set(
-                                      //         "IDforEmail", idController.text);
-
-                                      //     print(newEMP.name);
-                                      //     print(newEMP.periodWork);
-
-                                      // Navigator.of(context)
-                                      //     .pushNamed('homepage');
-
-                                      //     break;
-                                      //   } else {
-                                      //     ErrorMessage();
-                                      //     //   setState(() {
-                                      //     //   output =
-                                      //     //   ('Your ID or Password is Wrong');
-                                      //     // });
-
-                                      //   }
-                                      // }
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          "Login  ",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_forward,
-                                          color: Colors.white,
-                                        )
-                                      ],
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Login  ",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18),
+                                          ),
+                                          Icon(
+                                            Icons.arrow_forward,
+                                            color: Colors.white,
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -401,6 +357,44 @@ class _LoginState extends State<Login> {
                                       "$output",
                                       style: TextStyle(color: Colors.red),
                                     )),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            isAdmin = true;
+                                          });
+                                        },
+                                        child: Text(
+                                          "I am an admin",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              color: isAdmin
+                                                  ? Colors.white
+                                                  : Colors.blue),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            isAdmin = false;
+                                          });
+                                        },
+                                        child: Text(
+                                          "I am a user",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              color: isAdmin
+                                                  ? Colors.blue
+                                                  : Colors.white),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                )
                               ],
                             ),
                           ),
@@ -417,21 +411,13 @@ class _LoginState extends State<Login> {
     );
   }
 
-  ErrorMessage() {
+  ErrorMessage(String Error) {
     final snackBar = SnackBar(
-      content: Text("Your ID or Password is Wrong"),
+      content: Text(Error),
       duration: Duration(seconds: 1),
       backgroundColor: Colors.red,
     );
 
     scaffoldkey.currentState.showSnackBar(snackBar);
-  }
-
-  Future<List> getData() async {
-    String url =
-        "http://www.json-generator.com/api/json/get/cgwStpuQbS?indent=2";
-    // http://www.json-generator.com/api/json/get/cgwStpuQbS?indent=2
-    http.Response response = await http.get(url);
-    return jsonDecode(response.body);
   }
 }

@@ -47,6 +47,7 @@ class _HomepageState extends State<Homepage> {
     // Employee x = _get.get("newEMP");
     // return _get.get("EMPStatus");
     return newEMP.Status;
+    // return _get.get("EMPStatus");
   }
 
   String Welcome() {
@@ -104,8 +105,9 @@ class _HomepageState extends State<Homepage> {
                                       alignment: Alignment.centerLeft,
                                       icon: Icon(Icons.exit_to_app),
                                       onPressed: () {
-                                        Navigator.of(context)
-                                            .pushNamed('login');
+                                        // Navigator.of(context)
+                                        //     .pushNamed('login');
+                                        Store().logout();
                                       }),
                                 ),
                                 SizedBox(
@@ -163,7 +165,7 @@ class _HomepageState extends State<Homepage> {
                                       ),
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          'Hiring  Date :${newEMP.periodWork}')),
+                                          'Hiring  Date :${_get.get("EMPHiringDate")}')),
                                   Container(
                                       padding: EdgeInsets.only(
                                         left: 30,
@@ -191,18 +193,6 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                       BiddingStatus((getState() == 'Waiting'), newEMP: newEMP),
-                      IconButton(
-                          icon: Icon(Icons.list),
-                          onPressed: () async {
-                            print(output);
-                            for (int i = 0; i < empList.length; i++) {
-                              print(empList[i]["Name"]);
-                            }
-
-                            for (int i = 0; i < getList().length; i++) {
-                              print(getList()[i]);
-                            }
-                          })
                     ],
                   ),
                 ))));

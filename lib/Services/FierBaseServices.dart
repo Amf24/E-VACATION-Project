@@ -1,31 +1,58 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:trainingproject/Gstate.dart';
+import 'package:trainingproject/Months.dart';
+import 'package:trainingproject/Services/Gstate.dart';
+import 'package:trainingproject/Employee.dart';
 
-import 'Employee.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class Store {
+class FierBaseServices {
   Gstate _save = Gstate.instance;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference EMP =
       FirebaseFirestore.instance.collection("Employee");
+  final CollectionReference EMPadmin =
+      FirebaseFirestore.instance.collection("Slots");
   final _auth = FirebaseAuth.instance;
 
-  Future getEmpList() async {
-    List list = [];
-    try {
-      await EMP.getDocuments().then((QuerySnapshot) {
-        QuerySnapshot.docs.forEach((element) {
-          list.add(element.data);
-        });
-      });
-      return list;
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
+  Future<List<Months>> localMonths() async {
+    List<Months> MONTHS = [];
+
+    await FirebaseFirestore.instance
+        .collection('Slots')
+        .get()
+        .then((QuerySnapshot querySnapshot) => {
+              querySnapshot.docs.forEach((doc) {
+                MONTHS.add(new Months(
+                    doc.id, doc.data()["actual"], doc.data()["pland"]));
+              })
+            });
+    return MONTHS;
+  }
+
+  Future<List<Employee>> getEMPLOYEES() async {
+    List<Employee> EMPLOYEES = [];
+
+    await FirebaseFirestore.instance
+        .collection('Employee')
+        .get()
+        .then((QuerySnapshot querySnapshot) => {
+              querySnapshot.docs.forEach((doc) {
+                EMPLOYEES.add(new Employee(
+                    doc.data()["ID"],
+                    doc.data()["Name"],
+                    doc.data()["Email"],
+                    doc.data()["Hiring date"],
+                    doc.data()["Equibment"],
+                    doc.data()["Group"],
+                    doc.data()["Status"],
+                    doc.data()["Result"],
+                    doc.data()["Months"]));
+              })
+            });
+    return EMPLOYEES;
   }
 
   Future<String> GetEmpEmail(String ID) async {
@@ -162,13 +189,6 @@ class Store {
         } else if (e.code == 'wrong-password') {
           print('Wrong password provided for that user.');
         }
-        // }
-        // on PlatformException catch (e) {
-        //   if (e.code == 'user-not-found') {
-        //     print('PlatformException No user found for that email.');
-        //   } else if (e.code == 'wrong-password') {
-        //     print('PlatformException Wrong password provided for that user.');
-        //   }
       } catch (e) {
         print("other types of Exceptions");
       }
@@ -229,6 +249,28 @@ class Store {
         .update({'Months': Months})
         .then((value) => print("Months Updated"))
         .catchError((error) => print("Failed to update Months: $error"));
+  }
+
+  UpdatingResult(String Month, String ID) {
+    EMP
+        .doc(ID)
+        .update({'Result': "${Month}"})
+        .then((value) => print("Result Updated"))
+        .catchError((error) => print("Failed to update Month: $error"));
+  }
+
+  UpdatingActual(int actual, String month) {
+    EMPadmin.doc(month)
+        .update({'actual': actual})
+        .then((value) => print("actual Updated"))
+        .catchError((error) => print("Failed to update actual: $error"));
+  }
+
+  UpdatingPland(int pland, String month) {
+    EMPadmin.doc(month)
+        .update({'pland': pland})
+        .then((value) => print("pland Updated"))
+        .catchError((error) => print("Failed to update pland: $error"));
   }
 
   adminLogin(String id, String pass) async {

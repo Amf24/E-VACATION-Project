@@ -8,10 +8,6 @@ class Gstate {
   set(dynamic key, dynamic value) => _data[key] = value;
 
   get(dynamic key) {
-    print("data = ${_data.length}");
-    // for (var d in _data.keys) {
-    //   print(d);
-    // }
     return _data[key];
   }
 }

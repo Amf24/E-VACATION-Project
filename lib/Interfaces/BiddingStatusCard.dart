@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainingproject/Employee.dart';
-import 'package:trainingproject/MonthsOrder.dart';
+import 'package:trainingproject/Services/MonthsOrder.dart';
 
 class BiddingStatus extends StatelessWidget {
   Employee newEMP;
@@ -11,28 +11,31 @@ class BiddingStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      //height: 270,
       width: double.infinity,
-      //padding: EdgeInsets.only(top: 200, bottom: 200),
-      margin: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black,
-                spreadRadius: .4,
-                blurRadius: 20,
-                offset: Offset(0, 10))
-          ]),
-
       child: Column(
         children: [
-          Text(biddingIsAvailable ? 'you have Bidding' : 'no bidding'),
-          RaisedButton(
-            child: Text(biddingIsAvailable
-                ? 'view / edit'
-                : 'Start Bidding For The Next Year Vacation'),
+          Text(biddingIsAvailable ? 'You Have Bidding' : 'No Bidding',
+              style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  color: Colors.black,
+                  fontSize: 20.0)),
+          SizedBox(
+            height: 15,
+          ),
+          FlatButton(
+            child: Text(
+                biddingIsAvailable
+                    ? 'view / edit'
+                    : 'Start Bidding For The Next Year Vacation',
+                style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    color: Colors.white,
+                    fontSize: 20.0)),
+            color: Color.fromARGB(255, 190, 169, 133),
+            minWidth: 290,
+            height: 55,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => MonthsOrder(newEMP: newEMP)));

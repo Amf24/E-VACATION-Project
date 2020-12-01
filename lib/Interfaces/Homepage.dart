@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:trainingproject/Gstate.dart';
+import 'package:trainingproject/Services/Gstate.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:trainingproject/Store.dart';
+import 'package:trainingproject/Services/FierBaseServices.dart';
+import 'package:trainingproject/Services/shared_preferences_Services.dart';
 import '../Employee.dart';
 import 'BiddingStatusCard.dart';
 
@@ -20,7 +21,7 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   Employee newEMP;
   _HomepageState({this.newEMP});
-  final _store = Store();
+  final _FierBaseServices = FierBaseServices();
   Gstate _get = Gstate.instance;
   List<String> Listo;
 
@@ -32,35 +33,32 @@ class _HomepageState extends State<Homepage> {
   }
 
   List getList() {
-    // Employee x = _get.get("newEMP");
-    // return x.Vacation;
     return newEMP.Vacation;
   }
 
   String getname() {
-    // Employee x = _get.get("nEewMP");
-    // return x.name;
     return newEMP.name;
   }
 
   String getState() {
-    // Employee x = _get.get("newEMP");
-    // return _get.get("EMPStatus");
     return newEMP.Status;
-    // return _get.get("EMPStatus");
+  }
+
+  String getResult() {
+    return newEMP.Result;
   }
 
   String Welcome() {
-    var timeNow = DateTime.now().hour;
+    var timeNow = DateTime.now().hour + 3;
 
     if (timeNow <= 12) {
-      return 'Good Morning ${newEMP.name}';
+      return 'Good Morning';
     } else if ((timeNow > 12) && (timeNow <= 16)) {
-      return 'Good Afternoon ${newEMP.name}';
+      return 'Good Afternoon';
     } else if ((timeNow > 16) && (timeNow < 20)) {
-      return 'Good Evening ${newEMP.name}';
+      return 'Good Evening';
     } else {
-      return 'Good Night ${newEMP.name}';
+      return 'Good Night';
     }
   }
 
@@ -72,129 +70,215 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     var hasBidding = true;
-    return Container(
-        child: Directionality(
-            textDirection: TextDirection.ltr,
-            child: Scaffold(
-                backgroundColor: Colors.blue.shade900,
-                body: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: Color.fromARGB(255, 34, 49, 125),
+      body: ListView(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(left: 10.0, top: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.power_settings_new),
+                  color: Colors.white,
+                  onPressed: () {
+                    FierBaseServices().logout();
+                    SharedPreferencesServices().SaveData(null);
+                    Navigator.of(context).pushNamed('login');
+                  },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10.0),
+          Padding(
+            padding: EdgeInsets.only(left: 60.0),
+            child: Row(
+              children: <Widget>[
+                Text(Welcome(),
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25.0)),
+                SizedBox(width: 10.0),
+                // Text('${newEMP.name}',
+                Text('${newEMP.name}',
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        color: Colors.white,
+                        fontSize: 25.0))
+              ],
+            ),
+          ),
+          SizedBox(height: 30.0),
+          Container(
+            height: MediaQuery.of(context).size.height - 120.0,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(75.0),
+              ),
+            ),
+            child: ListView(
+              primary: false,
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 30.0),
                   child: Column(
                     children: [
-                      Container(
-                        //height: 270,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(top: 20, bottom: 20),
-                        margin: EdgeInsets.only(
-                            top: 40, bottom: 20, left: 20, right: 20),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black,
-                                  spreadRadius: .4,
-                                  blurRadius: 20,
-                                  offset: Offset(0, 10))
-                            ]),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: IconButton(
-                                      alignment: Alignment.centerLeft,
-                                      icon: Icon(Icons.exit_to_app),
-                                      onPressed: () {
-                                        // Navigator.of(context)
-                                        //     .pushNamed('login');
-                                        Store().logout();
-                                      }),
-                                ),
-                                SizedBox(
-                                  width: 50,
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    child: Text(
-                                      Welcome(),
-                                      textAlign: TextAlign.center,
-                                    ),
+                      Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey,
+                            ),
+                            child: Icon(
+                              Icons.person,
+                              size: 70,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Divider(
+                            thickness: 4,
+                            height: 20,
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Table(
+                            children: [
+                              TableRow(children: [
+                                Container(
+                                  child: FittedBox(
+                                    fit: BoxFit.fitWidth,
+                                    child: Text('ID: ${newEMP.ID}             ',
+                                        style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          color: Colors.black,
+                                        )),
                                   ),
                                 ),
-                              ],
-                            ),
-                            Divider(
-                              thickness: 2,
-                              height: 20,
-                            ),
-                            FlutterLogo(
-                              size: 50,
-                            ),
-                            Divider(
-                              thickness: 2,
-                              height: 20,
-                            ),
-                            Table(
-                              textDirection: TextDirection.ltr,
-                              defaultVerticalAlignment:
-                                  TableCellVerticalAlignment.bottom,
-                              children: [
-                                TableRow(children: [
-                                  Container(
-                                      padding: EdgeInsets.only(
-                                        left: 30,
-                                      ),
-                                      alignment: Alignment.centerLeft,
-                                      child: Text('ID :${newEMP.ID}')),
-                                  Container(
-                                      padding: EdgeInsets.only(
-                                        left: 30,
-                                      ),
-                                      alignment: Alignment.centerLeft,
-                                      child: Text('Email :${newEMP.Email}')),
-                                ]),
-                              ],
-                            ),
-                            Divider(),
-                            Table(
-                              children: [
-                                TableRow(children: [
-                                  Container(
-                                      padding: EdgeInsets.only(
-                                        left: 30,
-                                      ),
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                          'Hiring  Date :${_get.get("EMPHiringDate")}')),
-                                  Container(
-                                      padding: EdgeInsets.only(
-                                        left: 30,
-                                      ),
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                          'Equibment :${newEMP.Equibment}')),
-                                ]),
-                              ],
-                            ),
-                            Divider(),
-                            Table(
-                              children: [
-                                TableRow(children: [
-                                  Container(
-                                      padding: EdgeInsets.only(
-                                        left: 30,
-                                      ),
-                                      alignment: Alignment.centerLeft,
-                                      child: Text('Group :${newEMP.Group}')),
-                                ]),
-                              ],
-                            ),
-                          ],
-                        ),
+                                Container(
+                                    child: FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  child: Row(
+                                    children: [
+                                      Text('Email:',
+                                          style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.black,
+                                          )),
+                                      SizedBox(width: 5.0),
+                                      Text('${newEMP.Email}',
+                                          style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.black,
+                                          ))
+                                    ],
+                                  ),
+                                )),
+                              ]),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Table(
+                            children: [
+                              TableRow(children: [
+                                Container(
+                                    child: FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  child: Text(
+                                      'Working since: ${newEMP.periodWork.toInt()} Year    ',
+                                      style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          color: Colors.black,
+                                          fontSize: 20.0)),
+                                )),
+                                Container(
+                                    child: FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  child: Text('Equibment: ${newEMP.Equibment}',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        color: Colors.black,
+                                      )),
+                                )),
+                              ]),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Table(
+                            children: [
+                              TableRow(children: [
+                                Container(
+                                    child: Text('Group: ${newEMP.Group}',
+                                        style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.black,
+                                            fontSize: 20.0))),
+                              ]),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Divider(
+                            thickness: 4,
+                            height: 20,
+                          ),
+                        ],
                       ),
-                      BiddingStatus((getState() == 'Waiting'), newEMP: newEMP),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      CheckResult(getResult()),
                     ],
                   ),
-                ))));
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  CheckResult(String result) {
+    if (result != "No Bid") {
+      return Card(
+          color: Color.fromARGB(255, 190, 169, 113),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Text("The Vacation will be in ",
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25.0)),
+                Text("${newEMP.Result}",
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        color: Colors.white,
+                        fontSize: 25.0)),
+              ],
+            ),
+          ));
+    } else {
+      return BiddingStatus((getState() == 'Waiting'), newEMP: newEMP);
+    }
   }
 }

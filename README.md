@@ -1,16 +1,28 @@
-# trainingproject
+# training project
 
-Training Project
+This application is  A Mobile app which is a project dedicated to pilots and flight attendants that allow them to determine the date of their annual vacation.
 
-## Getting Started
+## List of technologies used in this project:
+- Flutter
+- Firebase
+- Figma Wireframes
+- Visual Studio Code
 
-This project is a starting point for a Flutter application.
+## User Stories:
+- As a User, I want to sign in.
+- As a User, I want to Ensure that the login process is valid.
+- As a User, I want to show me all user information on the main screen.
+- As a User, I want to arrange the Order of months.
+- As a User, I want to show me the duration of the pilot or employee's work in the company.
+- As a User, I want to Save the list arranged.
+- As a User, I want to Edit the list of months.
+- As a User, I want to Keep user logged in.
 
-A few resources to get you started if this is your first Flutter project:
+## Problem-solving strategy:
+My method for solving problems that may occur:
+- First, identify the problem and its location to avoid causing other problems.
+- Analyze the problem and verify sayntx.
+- Apply the expected solutions.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+If I do not find a solution to the problem, I do research on the Internet or help from an expert
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.

@@ -1,4 +1,4 @@
-# training project
+# E-VACATION-Project
 
 This application is  A Mobile app which is a project dedicated to pilots and flight attendants that allow them to determine the date of their annual vacation.
 
